@@ -10,33 +10,26 @@ import Vapor
 import FluentProvider
 
 final class Prompt: Model {
-    let storage = Storage()
     
-    // MARK: Properties and database keys
-    
-    /// The content of the post
-    var title: String
-    
-    /// The column names for `id` and `content` in the database
     struct Keys {
         static let id = "id"
         static let title = "title"
     }
     
-    /// Creates a new Post
+    let storage = Storage()
+    var title: String
+    
+    /// Creates a new Prompt
     init(title: String) {
         self.title = title
     }
     
-    // MARK: Fluent Serialization
-    
-    /// Initializes the Post from the
-    /// database row
+    /// Initializes Prompt from row
     init(row: Row) throws {
         title = try row.get(Prompt.Keys.title)
     }
     
-    // Serializes the Post to the database
+    /// Serializes Prompt to database
     func makeRow() throws -> Row {
         var row = Row()
         try row.set(Prompt.Keys.title, title)
