@@ -14,25 +14,35 @@ final class Prompt: Model {
     struct Keys {
         static let id = "id"
         static let title = "title"
+        static let body = "body"
+        static let imageUrl = "imageUrl"
     }
     
     let storage = Storage()
     var title: String
+    var body: String
+    var imageUrl: String
     
     /// Creates a new Prompt
-    init(title: String) {
+    init(title: String, body: String, imageUrl: String) {
         self.title = title
+        self.body = body
+        self.imageUrl = imageUrl
     }
     
     /// Initializes Prompt from row
     init(row: Row) throws {
         title = try row.get(Prompt.Keys.title)
+        body = try row.get(Prompt.Keys.body)
+        imageUrl = try row.get(Prompt.Keys.imageUrl)
     }
     
     /// Serializes Prompt to database
     func makeRow() throws -> Row {
         var row = Row()
         try row.set(Prompt.Keys.title, title)
+        try row.set(Prompt.Keys.body, body)
+        try row.set(Prompt.Keys.imageUrl, imageUrl)
         return row
     }
 }
@@ -46,6 +56,8 @@ extension Prompt: Preparation {
         try database.create(self) { builder in
             builder.id()
             builder.string(Prompt.Keys.title)
+            builder.string(Prompt.Keys.body)
+            builder.string(Prompt.Keys.imageUrl)
         }
     }
     
@@ -65,7 +77,9 @@ extension Prompt: Preparation {
 extension Prompt: JSONConvertible {
     convenience init(json: JSON) throws {
         self.init(
-            title: try json.get(Prompt.Keys.title)
+            title: try json.get(Prompt.Keys.title),
+            body: try json.get(Prompt.Keys.body),
+            imageUrl: try json.get(Prompt.Keys.imageUrl)
         )
     }
     
@@ -73,6 +87,8 @@ extension Prompt: JSONConvertible {
         var json = JSON()
         try json.set(Prompt.Keys.id, id)
         try json.set(Prompt.Keys.title, title)
+        try json.set(Prompt.Keys.body, body)
+        try json.set(Prompt.Keys.imageUrl, imageUrl)
         return json
     }
 }
