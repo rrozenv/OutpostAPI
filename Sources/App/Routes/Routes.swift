@@ -2,6 +2,13 @@ import Vapor
 
 extension Droplet {
     func setupRoutes() throws {
+        
+        get("prompt") { request in
+            let prompt = Prompt(title: "first prompt")
+            try prompt.save()
+            return try prompt.makeJSON()
+        }
+        
         get("hello") { req in
             var json = JSON()
             try json.set("hello", "world")
