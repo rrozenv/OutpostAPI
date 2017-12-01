@@ -9,13 +9,14 @@ import Foundation
 import Vapor
 import FluentProvider
 
-final class Prompt: Model {
+final class Prompt: Model, Timestampable {
     
     struct Keys {
         static let id = "id"
         static let title = "title"
         static let body = "body"
         static let imageUrl = "imageUrl"
+        static let createdAt = "createdAt"
     }
     
     let storage = Storage()
@@ -89,6 +90,7 @@ extension Prompt: JSONConvertible {
         try json.set(Prompt.Keys.title, title)
         try json.set(Prompt.Keys.body, body)
         try json.set(Prompt.Keys.imageUrl, imageUrl)
+        try json.set(Prompt.Keys.createdAt, createdAt?.string)
         return json
     }
 }
@@ -115,5 +117,11 @@ extension Prompt: Updateable {
                 prompt.title = title
             }
         ]
+    }
+}
+
+extension Prompt {
+    var replies: Children<Prompt, PromptReply> {
+        return children()
     }
 }

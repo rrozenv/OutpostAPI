@@ -3,7 +3,17 @@ import Foundation
 import Vapor
 import HTTP
 
-final class PromptController: ResourceRepresentable {
+final class PromptController {
+    
+    func addRoutes(drop: Droplet) {
+        let basic = drop.grouped("prompts")
+        basic.get(handler: index)
+        basic.get(Prompt.parameter, handler: index)
+        basic.get(Prompt.parameter, "replies", handler: repliesIndex)
+        
+        basic.post(handler: store)
+        basic.post(Prompt.parameter, "replies", handler: storeReply)
+    }
    
     //GET
     func index(_ req: Request) throws -> ResponseRepresentable {
@@ -12,10 +22,24 @@ final class PromptController: ResourceRepresentable {
     
     //GET/:id
     func show(_ req: Request, prompt: Prompt) throws -> ResponseRepresentable {
-        return prompt
+        return try prompt.makeJSON()
+    }
+    
+    func repliesIndex(_ req: Request) throws -> ResponseRepresentable {
+        let promptId = try req.parameters.next(Int.self)
+        guard let prompt = try Prompt.find(promptId) else {
+            throw Abort.notFound
+        }
+        return try prompt.replies.all().makeJSON()
     }
     
     //POST
+    func storeReply(_ req: Request) throws -> ResponseRepresentable {
+        let reply = try req.promptReply()
+        try reply.save()
+        return reply
+    }
+    
     func store(_ req: Request) throws -> ResponseRepresentable {
         let prompt = try req.prompt()
         try prompt.save()
@@ -49,17 +73,17 @@ final class PromptController: ResourceRepresentable {
         return prompt
     }
     
-    func makeResource() -> Resource<Prompt> {
-        return Resource(
-            index: index,
-            store: store,
-            show: show,
-            update: update,
-            replace: replace,
-            destroy: delete,
-            clear: clear
-        )
-    }
+//    func makeResource() -> Resource<Prompt> {
+//        return Resource(
+//            index: index,
+//            store: store,
+//            show: show,
+//            update: update,
+//            replace: replace,
+//            destroy: delete,
+//            clear: clear
+//        )
+//    }
     
 }
 
@@ -70,4 +94,4 @@ extension Request {
     }
 }
 
-extension PromptController: EmptyInitializable { }
+extension PromptReplyController: EmptyInitializable { }

@@ -3,7 +3,8 @@ import Vapor
 extension Droplet {
    
     func setupRoutes() throws {
-        try resource("prompts", PromptController.self)
+        let promptController = PromptController()
+        promptController.addRoutes(drop: self)
         try resource("posts", PostController.self)
     }
     
